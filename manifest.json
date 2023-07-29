@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Potluck",
+    "description": "A simplified recommendation based Youtube homepage",
+    "version": "1.0",
+    "host_permissions": [
+        "https://www.youtube.com/"
+    ],
+    "icons": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "content_scripts": [
+      {
+        "js": [
+          "scripts/content-script.js"
+        ],
+        "matches": [
+            "https://www.youtube.com/*"
+        ]
+      }
+    ]
+}
