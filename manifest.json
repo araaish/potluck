@@ -1,10 +1,16 @@
 {
     "manifest_version": 3,
     "name": "Potluck",
-    "description": "A simplified recommendation based Youtube homepage",
+    "description": "A simplified Youtube homepage based on peer recommendations",
     "version": "1.0",
     "host_permissions": [
-        "https://www.youtube.com/"
+        "https://www.youtube.com/*"
+    ],
+    "permissions" : [
+        "identity",
+        "webNavigation",
+        "scripting",
+        "tabs"
     ],
     "icons": {
       "16": "icons/icon-16.png",
@@ -15,11 +21,33 @@
     "content_scripts": [
       {
         "js": [
-          "scripts/content-script.js"
+          "scripts/homepage-script.js"
         ],
         "matches": [
-            "https://www.youtube.com/*"
+            "https://www.youtube.com/"
+        ]
+      },
+      {
+        "js": [
+          "scripts/recommend-script.js"
+        ],
+        "matches": [
+            "https://www.youtube.com/watch?v=*"
         ]
       }
-    ]
+    ],
+    "action": {
+        "default_title": "FriendBlock, friends face's in a block."
+    },
+    "background": {
+      "service_worker": "scripts/firebase.js"
+    },
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmM+efebxqd4/qlThhZ9QJbj1eeORpb6J2Jk/dO7HSuH+qa+qdFqLnY9oZacyDhEXlDaqRhfkNres/+mZggJ6CLT7n9jSKdSZO+S8qGi0jcQyc+PpE2n6Fk48U46i5zZrOz0jwiasFX4+bCYSv0deOsmKzaP+pMddmok+c5bp9A7VgzesalOfahm4dWMv+RFhaI7IB21mPHQPdNlvtt/v4C4INEPyUQywD0I5omsmEoqBvfjmUse8Ge95NVNk8ZXoCgz4QQWFtT+SwbX+amlZanzEjV4Tf7rwrray0mJwyVNj2bePb6FOpR0QLgJNEfQyWe9KDCVSE9px1DsWB6tEZQIDAQAB",
+    "oauth2": {
+        "client_id": "644458548318-8ockpnvvcq0s8rdbiinuisa6i0huvg5l.apps.googleusercontent.com",
+        "scopes" : [
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/contacts"
+        ]
+    }
 }
