@@ -1,6 +1,7 @@
 // service worker catch errors
 
 self.importScripts('../firebase/firebase-app.js', '../firebase/firebase-database.js');
+self.importScripts('../oauth.js');
 
 // Firebase configuration
 var firebaseConfig = {
@@ -26,9 +27,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
     // recommend message
     if (msg.command === "recommend") {
         var url = msg.data.url;
-        var user = "Araaish"
-        const ref = db.ref("recommendations/" + user);
-        var post = ref.push().set({
+        var email = getUserEmail();
+        console.log("EMAIL: ", email);
+        console.log(getUserContacts());
+        const ref = db.ref("recommendations");
+        var post = ref.push({
+            email: email,
             url: url,
         });
         response("success");   
