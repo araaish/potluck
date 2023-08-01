@@ -45,16 +45,57 @@ function injectPotluckElement() {
   }
 }
 
+// Function to inject potluck recommendation title
+function injectPotluckRecTitleElement() {
+    const potluck_title_element = document.createElement("h1");
+    potluck_title_element.setAttribute("id", "potluck-title-element");
+    potluck_title_element.textContent = "Your Potluck Recommends";
+    const parentElement = document.querySelector("#potluck-element");
+    if (parentElement) {
+        parentElement.insertBefore(potluck_title_element, parentElement.firstChild);
+    }
+}
+
+// Function to inject potluck recommendation videos
+function injectPotluckRecContents() {
+
+    // Create a new div element
+    const potluck_rec_contents = document.createElement("div");
+    potluck_rec_contents.setAttribute("id", "potluck-rec-contents");
+
+    // Style the div element
+    potluck_rec_contents.style.width = "100%";
+    potluck_rec_contents.style.paddingTop = "24px";
+    potluck_rec_contents.style.display = "flex";
+    potluck_rec_contents.style.flexWrap = "wrap";
+    potluck_rec_contents.style.justifyContent = "flex-start";
+
+    const grandparentElement = document.querySelector("#potluck-element");
+    if (grandparentElement) {
+        grandparentElement.insertBefore(potluck_rec_contents, grandparentElement.children[1]);
+    }
+
+    // Get list of video urls from background script
+    chrome.runtime.sendMessage({command: "getRecommendations"}, function(response) {
+        response.recommendations.forEach(function(urls) {
+            console.log("URLS: ", urls);
+        });
+    });
+
+}
+
+// Function to inject youtube recommendation title
 function injectYoutubeRecTitleElement() {
     const youtube_title_element = document.createElement("h1");
     youtube_title_element.setAttribute("id", "youtube-title-element");
     youtube_title_element.textContent = "Youtube Recommends";
     const parentElement = document.querySelector("#potluck-element");
     if (parentElement) {
-        parentElement.insertBefore(youtube_title_element, parentElement.firstChild);
+        parentElement.insertBefore(youtube_title_element, parentElement.children[2]);
     }
 }
 
+// Function to inject youtube recommendation videos
 function injectYoutubeRecContents() {
     const youtube_rec_contents = document.createElement("div");
     youtube_rec_contents.setAttribute("id", "youtube-rec-contents");
@@ -68,10 +109,11 @@ function injectYoutubeRecContents() {
 
     const grandparentElement = document.querySelector("#potluck-element");
     if (grandparentElement) {
-        grandparentElement.insertBefore(youtube_rec_contents, grandparentElement.children[1]);
+        grandparentElement.insertBefore(youtube_rec_contents, grandparentElement.children[3]);
     }
 
     // display ROW_LIMIT number of rows
+    // TODO: add dynamic LIMIT option to settings
     const ROW_LIMIT = 3;
     const parentElement = document.querySelector("#youtube-rec-contents");
     const row_elements = document.querySelectorAll("ytd-rich-grid-row")
@@ -86,7 +128,8 @@ function injectYoutubeRecContents() {
 window.addEventListener("load", () => {
     hideVideoInformation();
     injectPotluckElement();
+    injectPotluckRecTitleElement();
+    injectPotluckRecContents();
     injectYoutubeRecTitleElement();
     injectYoutubeRecContents();
-
 });

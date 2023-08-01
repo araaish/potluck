@@ -7,10 +7,10 @@ function injectRecommendButton() {
     if (parentElement.querySelector("#recommend-button")) {
         return;
     }
-    
+
     const recommendButton = parentElement.querySelector("#top-level-buttons-computed > ytd-button-renderer").cloneNode(true);
 
-    // Style the reccomend button
+    // TODO: Style the reccomend button
     textElement = recommendButton.querySelector("#top-level-buttons-computed > ytd-button-renderer > yt-button-shape > button > div.cbox.yt-spec-button-shape-next__button-text-content > span");
     buttonElement = document.createElement("button");
 
@@ -38,7 +38,6 @@ function recommendVideo() {
     (response) => {
         console.log(response);
     });
-    
 }
 
 

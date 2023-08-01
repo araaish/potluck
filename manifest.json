@@ -9,7 +9,6 @@
     "permissions" : [
         "identity",
         "identity.email",
-        "webNavigation",
         "scripting",
         "tabs"
     ],
@@ -37,9 +36,6 @@
         ]
       }
     ],
-    "action": {
-        "default_title": "FriendBlock, friends face's in a block."
-    },
     "background": {
       "service_worker": "scripts/firebase.js"
     },
