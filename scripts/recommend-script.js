@@ -36,7 +36,7 @@ function recommendVideo() {
     // Send message to background script
     chrome.runtime.sendMessage({command: "recommend", data: {url : url}}, 
     (response) => {
-        console.log(response);
+        console.log("MADE RECOMMENDATION: ", response);
     });
 }
 

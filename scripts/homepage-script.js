@@ -76,12 +76,27 @@ function injectPotluckRecContents() {
     }
 
     // Get list of video urls from background script
+    console.log("TEST");
     chrome.runtime.sendMessage({command: "getRecommendations"}, function(response) {
-        response.recommendations.forEach(function(urls) {
-            console.log("URLS: ", urls);
-        });
+        if (response) {
+            console.log("Response received: ", response);
+            const videos = response;
+             // display urls
+            list_element = document.createElement("li");
+            videos.forEach(function(video) {
+                url = document.createElement("a");
+                url.setAttribute("href", video);
+                url.textContent = video;
+                list_element.appendChild(url);
+            });
+            header_element = document.createElement("h3");
+            header_element.textContent = "URLS: ";
+            potluck_rec_contents.appendChild(header_element);
+            potluck_rec_contents.appendChild(list_element);
+        } else {
+            console.log("No response from background script");
+        }
     });
-
 }
 
 // Function to inject youtube recommendation title

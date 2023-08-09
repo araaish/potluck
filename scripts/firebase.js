@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             var post = ref.set({
                 url: url,
             });
-            response("success");   
+            response({type: "result", status: "success"});
         });
     }
 
@@ -51,23 +51,39 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                 console.log("EMAIL: " + email);
                 console.log("CONTACTS: " + contacts);
                 var recommendations = [];
+                var promises = [];
                 // For each contact, get their recommendations
                 contacts.forEach((contact) => {
                     // sanitize contact email
                     contact = contact.replace(/[.$\[\]#\/]/g, "");
                     // get recommendations from firebase
                     const ref = db.ref("recommendations/" + contact);
-                    ref.on("value", (snapshot) => {
-                        const data = snapshot.val();
-                        console.log("DATA: " + data);
-                        if (data) {
-                            console.log("URL: " + data.url);
-                            recommendations.push(data.url);
-                        }
-                    });
+                    // ref.on("value", (snapshot) => {
+                    //     const data = snapshot.val();
+                    //     console.log("DATA: " + data);
+                    //     if (data) {
+                    //         recommendations.push(data.url);
+                    //     }
+                    // });
+                    promises.push(
+                        new Promise((resolve) => {
+                            ref.on("value", (snapshot) => {
+                                const data = snapshot.val();
+                                if (data) {
+                                    resolve(data.url);
+                                } else {
+                                    resolve(null);
+                                }
+                            });
+                        })
+                    );
                 });
-                response(recommendations);
+                Promise.all(promises).then((recs) => {
+                    console.log("RECOMMENDATIONS: " + recs);
+                    response(recs.filter((rec) => rec !== null));
+                });
             });
         });
     }
+    return true;
 });
