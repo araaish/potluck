@@ -10,14 +10,25 @@ function injectRecommendButton() {
 
     const recommendButton = parentElement.querySelector("#top-level-buttons-computed > ytd-button-renderer").cloneNode(true);
 
-    // TODO: Style the reccomend button
+    // Style the reccomend button
     textElement = recommendButton.querySelector("#top-level-buttons-computed > ytd-button-renderer > yt-button-shape > button > div.cbox.yt-spec-button-shape-next__button-text-content > span");
     buttonElement = document.createElement("button");
 
-    // Set the button properties (optional)
+    // Styl button
     buttonElement.textContent = "Recommend"; // Button text
-    buttonElement.setAttribute("id", "recommend-button"); // Button id (optional)
-    buttonElement.setAttribute("type", "button"); // Button type (optional)
+    buttonElement.setAttribute("id", "recommend-button");
+    buttonElement.setAttribute("type", "button");
+    BUTTON_COLOR = "#c3482b";
+    buttonElement.style.backgroundColor = BUTTON_COLOR;
+    buttonElement.style.border = "none";
+    buttonElement.style.borderRadius = "18px";
+    buttonElement.style.marginRight = "10px";
+    buttonElement.style.height = "36px";
+    buttonElement.style.color = "#fff";
+    buttonElement.style.fontWeight = "bold";
+    buttonElement.style.fontSize = "14px";
+    buttonElement.style.fontFamily = "Roboto, sans-serif";
+    buttonElement.style.padding = "0 16px";
 
     // Inject the recommend button
     if (parentElement) {
@@ -26,6 +37,17 @@ function injectRecommendButton() {
 
     // Listen for recommend button clicks
     buttonElement.addEventListener("click", recommendVideo());
+
+    // hover effect
+    buttonElement.addEventListener("mouseover", function() {
+        buttonElement.style.backgroundColor = "#438d24";
+        buttonElement.style.cursor = "pointer";
+    });
+
+    buttonElement.addEventListener("mouseout", function() {
+        buttonElement.style.backgroundColor = BUTTON_COLOR;
+        buttonElement.style.cursor = "default";
+    });
 
 }
 
@@ -37,6 +59,7 @@ function recommendVideo() {
     chrome.runtime.sendMessage({command: "recommend", data: {url : url}}, 
     (response) => {
         console.log("MADE RECOMMENDATION: ", response);
+        // TODO: display success message
     });
 }
 
