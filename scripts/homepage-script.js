@@ -75,24 +75,121 @@ function injectPotluckRecContents() {
         grandparentElement.insertBefore(potluck_rec_contents, grandparentElement.children[1]);
     }
 
+
     // Get list of video urls from background script
-    console.log("TEST");
     chrome.runtime.sendMessage({command: "getRecommendations"}, function(response) {
         if (response) {
             console.log("Response received: ", response);
-            const videos = response;
-             // display urls
-            list_element = document.createElement("li");
-            videos.forEach(function(video) {
-                url = document.createElement("a");
-                url.setAttribute("href", video);
-                url.textContent = video;
-                list_element.appendChild(url);
-            });
-            header_element = document.createElement("h3");
-            header_element.textContent = "URLS: ";
-            potluck_rec_contents.appendChild(header_element);
-            potluck_rec_contents.appendChild(list_element);
+            const recs = response;
+
+            // Extract video metadata from urls
+            const thumbnailPromises = recs.map(rec => getThumbnail(rec.url));
+            const titlePromises = recs.map(rec => getTitle(rec.url));
+
+            Promise.all([Promise.all(thumbnailPromises), Promise.all(titlePromises)])
+                .then(([thumbnails, titles]) => {
+                    // Combine thumbnails, titles, and contacts
+                    const video_metadata = [];
+                    //TODO: strip gmail domain from contact
+                    for (let i = 0; i < recs.length; i++) {
+                        video_metadata.push({
+                            thumbnail: thumbnails[i],
+                            title: titles[i],
+                            contact: recs[i].contact
+                        });
+                    }
+                    
+                    // Display video metadata
+                    video_metadata.forEach(function(metadata) {
+                        console.log("CHECKPOINT 2");
+                        // create thumbnail element
+                        const thumbnail_element = document.createElement("img");
+                        thumbnail_element.setAttribute("src", metadata.thumbnail);
+                        thumbnail_element.setAttribute("alt", metadata.title);
+                        thumbnail_element.setAttribute("width", "200");
+                        thumbnail_element.setAttribute("height", "200");
+                        // create title element
+                        const title_element = document.createElement("h3");
+                        title_element.textContent = metadata.title;
+                        // create contact element
+                        const contact_element = document.createElement("h4");
+                        contact_element.textContent = "Recommended by: " + metadata.contact;
+                        // create container element
+                        const container_element = document.createElement("div");
+                        container_element.setAttribute("class", "potluck-rec-container");
+                        container_element.style.width = "200px";
+                        container_element.style.height = "300px";
+                        container_element.style.margin = "10px";
+                        container_element.style.display = "flex";
+                        container_element.style.flexDirection = "column";
+                        container_element.style.justifyContent = "space-between";
+                        container_element.style.alignItems = "center";
+                        // add elements to container
+                        container_element.appendChild(thumbnail_element);
+                        container_element.appendChild(title_element);
+                        container_element.appendChild(contact_element);
+                        // add container to potluck rec contents                        
+                        potluck_rec_contents.appendChild(container_element);
+                    });
+                });
+
+
+
+            // recs.forEach(function(rec) {
+            //     // get video thumbnail
+            //     // TODO: get thumbnail from background script
+            //     getThumbnail(rec.url).then((thumbnail) => {
+            //         console.log("THUMBNAIL: " + thumbnail);
+            //         // get video title
+            //         // TODO: get title from background script
+            //         getTitle(rec.url).then((title) => {
+            //             console.log("TITLE: " + title);
+            //             // get video channel
+            //             // TODO: get channel from background script
+            //             // get recommended by
+            //             const contact = rec.contact
+            //             // add metadata to list
+            //             video_metadata.push({thumbnail: thumbnail, title: title, contact: contact});
+            //             return;
+            //         });
+            //         return;
+            //     });
+            // });
+            // console.log("CHECKPOINT 1");
+            // // display video metadata
+            // video_metadata.forEach(function(metadata) {
+            //     console.log("CHECKPOINT 2");
+            //     // create thumbnail element
+            //     const thumbnail_element = document.createElement("img");
+            //     thumbnail_element.setAttribute("src", metadata.thumbnail);
+            //     thumbnail_element.setAttribute("alt", metadata.title);
+            //     thumbnail_element.setAttribute("width", "200");
+            //     thumbnail_element.setAttribute("height", "200");
+            //     // create title element
+            //     const title_element = document.createElement("h3");
+            //     title_element.textContent = metadata.title;
+            //     // create contact element
+            //     const contact_element = document.createElement("h4");
+            //     contact_element.textContent = "Recommended by: " + metadata.contact;
+            //     // create container element
+            //     const container_element = document.createElement("div");
+            //     container_element.setAttribute("class", "potluck-rec-container");
+            //     container_element.style.width = "200px";
+            //     container_element.style.height = "300px";
+            //     container_element.style.margin = "10px";
+            //     container_element.style.display = "flex";
+            //     container_element.style.flexDirection = "column";
+            //     container_element.style.justifyContent = "space-between";
+            //     container_element.style.alignItems = "center";
+            //     // add elements to container
+            //     container_element.appendChild(thumbnail_element);
+            //     container_element.appendChild(title_element);
+            //     container_element.appendChild(contact_element);
+            //     // add container to potluck rec contents
+            //     potluck_rec_contents = document.querySelector("#potluck-rec-contents");
+                
+            //     potluck_rec_contents.appendChild(container_element);
+            // });
         } else {
             console.log("No response from background script");
         }
@@ -138,6 +235,31 @@ function injectYoutubeRecContents() {
         }
     }
 }
+
+YOUTUBE_API_KEY = "AIzaSyBiX5IWmifn4ANkQ1E6YQqptIG2IQsGm1M";
+
+// get thumbnail from youtube api
+function getThumbnail(url) {
+    const video_id = url.split("v=")[1];
+    const thumbnail_url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + video_id + "&key=" + YOUTUBE_API_KEY;
+    return fetch(thumbnail_url).then((response) => {
+        return response.json();
+    }).then((data) => {
+        return data.items[0].snippet.thumbnails.default.url;
+    });
+}
+
+// get title from youtube api
+async function getTitle(url) {
+    const video_id = url.split("v=")[1];
+    const title_url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + video_id + "&key=" + YOUTUBE_API_KEY;
+    return fetch(title_url).then((response) => {
+        return response.json();
+    }).then((data) => {
+        return data.items[0].snippet.title;
+    });
+}
+
 
 
 window.addEventListener("load", () => {

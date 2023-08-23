@@ -1,5 +1,6 @@
 // service worker catch errors
-
+// TODO: remove and regenerate all sensitive data: api keys, firebase config
+// TODO: use netlify serverless functions to hide api keys
 self.importScripts('../firebase/firebase-app.js', '../firebase/firebase-database.js');
 self.importScripts('../oauth.js');
 
@@ -50,7 +51,6 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                 // get urls from firebase
                 console.log("EMAIL: " + email);
                 console.log("CONTACTS: " + contacts);
-                var recommendations = [];
                 var promises = [];
                 // For each contact, get their recommendations
                 contacts.forEach((contact) => {
@@ -70,7 +70,7 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
                             ref.on("value", (snapshot) => {
                                 const data = snapshot.val();
                                 if (data) {
-                                    resolve(data.url);
+                                    resolve({contact: contact, url: data.url});
                                 } else {
                                     resolve(null);
                                 }

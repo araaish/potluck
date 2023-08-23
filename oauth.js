@@ -48,7 +48,7 @@ function getUserEmail() {
 // get the user's contacts
 function getUserContacts() {
   return new Promise((resolve, reject) => {
-    chrome .identity.getAuthToken({interactive: true}, async (token) => {
+    chrome.identity.getAuthToken({interactive: true}, async (token) => {
       try {
         let init = {
           method: 'GET',
