@@ -36,7 +36,9 @@ function injectRecommendButton() {
     }
 
     // Listen for recommend button clicks
-    buttonElement.addEventListener("click", recommendVideo());
+    buttonElement.addEventListener("click", () => {
+        recommendVideo();
+    });
 
     // hover effect
     buttonElement.addEventListener("mouseover", function() {
