@@ -1,6 +1,7 @@
 // service worker catch errors
-// TODO: remove and regenerate all sensitive data: api keys, firebase config
+// TODO: remove and regenerate all sensitive data: api keys
 // TODO: use netlify serverless functions to hide api keys
+// TODO: add firebase security rules
 self.importScripts('../firebase/firebase-app.js', '../firebase/firebase-database.js');
 self.importScripts('../oauth.js');
 

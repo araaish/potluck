@@ -90,106 +90,78 @@ function injectPotluckRecContents() {
                 .then(([thumbnails, titles]) => {
                     // Combine thumbnails, titles, and contacts
                     const video_metadata = [];
-                    //TODO: strip gmail domain from contact
                     for (let i = 0; i < recs.length; i++) {
                         video_metadata.push({
                             thumbnail: thumbnails[i],
                             title: titles[i],
-                            contact: recs[i].contact
+                            contact: recs[i].contact.split("@")[0],
+                            url: recs[i].url
                         });
                     }
                     
                     // Display video metadata
                     video_metadata.forEach(function(metadata) {
-                        console.log("CHECKPOINT 2");
                         // create thumbnail element
                         const thumbnail_element = document.createElement("img");
                         thumbnail_element.setAttribute("src", metadata.thumbnail);
                         thumbnail_element.setAttribute("alt", metadata.title);
                         thumbnail_element.setAttribute("width", "200");
-                        thumbnail_element.setAttribute("height", "200");
+                        thumbnail_element.setAttribute("height", "120");
+                        thumbnail_element.style.borderRadius = "8px";
+                        thumbnail_element.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)";
+                        // clip top and bottom borders
+                        thumbnail_element.style.objectFit = "cover";
+                        
                         // create title element
                         const title_element = document.createElement("h3");
                         title_element.textContent = metadata.title;
+                        title_element.style.fontSize = "14px";
+                        title_element.style.fontFamily = "Roboto, sans-serif";
+                        // shorten title if necessary
+                        if (title_element.textContent.length > 30) {
+                            title_element.textContent = title_element.textContent.substring(0, 30) + "...";
+                        };
+
                         // create contact element
                         const contact_element = document.createElement("h4");
                         contact_element.textContent = "Recommended by: " + metadata.contact;
+                        contact_element.style.fontSize = "12px";
+                        contact_element.style.fontFamily = "Roboto, sans-serif";
+
                         // create container element
                         const container_element = document.createElement("div");
                         container_element.setAttribute("class", "potluck-rec-container");
                         container_element.style.width = "200px";
-                        container_element.style.height = "300px";
+                        container_element.style.height = "200px";
                         container_element.style.margin = "10px";
                         container_element.style.display = "flex";
                         container_element.style.flexDirection = "column";
                         container_element.style.justifyContent = "space-between";
                         container_element.style.alignItems = "center";
+
                         // add elements to container
                         container_element.appendChild(thumbnail_element);
                         container_element.appendChild(title_element);
                         container_element.appendChild(contact_element);
+
+                        // add hover effect to container
+                        container_element.addEventListener("mouseover", () => {
+                            container_element.style.cursor = "pointer";
+                            thumbnail_element.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.25)";
+                        });
+                        container_element.addEventListener("mouseout", () => {
+                            container_element.style.cursor = "default";
+                            thumbnail_element.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)";
+                        });
+                        // navigate to video on click
+                        container_element.addEventListener("click", () => {
+                            window.open(metadata.url, "_blank");
+                        });
+
                         // add container to potluck rec contents                        
                         potluck_rec_contents.appendChild(container_element);
                     });
                 });
-
-
-
-            // recs.forEach(function(rec) {
-            //     // get video thumbnail
-            //     // TODO: get thumbnail from background script
-            //     getThumbnail(rec.url).then((thumbnail) => {
-            //         console.log("THUMBNAIL: " + thumbnail);
-            //         // get video title
-            //         // TODO: get title from background script
-            //         getTitle(rec.url).then((title) => {
-            //             console.log("TITLE: " + title);
-            //             // get video channel
-            //             // TODO: get channel from background script
-            //             // get recommended by
-            //             const contact = rec.contact
-            //             // add metadata to list
-            //             video_metadata.push({thumbnail: thumbnail, title: title, contact: contact});
-            //             return;
-            //         });
-            //         return;
-            //     });
-            // });
-            // console.log("CHECKPOINT 1");
-            // // display video metadata
-            // video_metadata.forEach(function(metadata) {
-            //     console.log("CHECKPOINT 2");
-            //     // create thumbnail element
-            //     const thumbnail_element = document.createElement("img");
-            //     thumbnail_element.setAttribute("src", metadata.thumbnail);
-            //     thumbnail_element.setAttribute("alt", metadata.title);
-            //     thumbnail_element.setAttribute("width", "200");
-            //     thumbnail_element.setAttribute("height", "200");
-            //     // create title element
-            //     const title_element = document.createElement("h3");
-            //     title_element.textContent = metadata.title;
-            //     // create contact element
-            //     const contact_element = document.createElement("h4");
-            //     contact_element.textContent = "Recommended by: " + metadata.contact;
-            //     // create container element
-            //     const container_element = document.createElement("div");
-            //     container_element.setAttribute("class", "potluck-rec-container");
-            //     container_element.style.width = "200px";
-            //     container_element.style.height = "300px";
-            //     container_element.style.margin = "10px";
-            //     container_element.style.display = "flex";
-            //     container_element.style.flexDirection = "column";
-            //     container_element.style.justifyContent = "space-between";
-            //     container_element.style.alignItems = "center";
-            //     // add elements to container
-            //     container_element.appendChild(thumbnail_element);
-            //     container_element.appendChild(title_element);
-            //     container_element.appendChild(contact_element);
-            //     // add container to potluck rec contents
-            //     potluck_rec_contents = document.querySelector("#potluck-rec-contents");
-                
-            //     potluck_rec_contents.appendChild(container_element);
-            // });
         } else {
             console.log("No response from background script");
         }
@@ -239,7 +211,7 @@ function injectYoutubeRecContents() {
 YOUTUBE_API_KEY = "AIzaSyBiX5IWmifn4ANkQ1E6YQqptIG2IQsGm1M";
 
 // get thumbnail from youtube api
-function getThumbnail(url) {
+async function getThumbnail(url) {
     const video_id = url.split("v=")[1];
     const thumbnail_url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + video_id + "&key=" + YOUTUBE_API_KEY;
     return fetch(thumbnail_url).then((response) => {
@@ -262,7 +234,7 @@ async function getTitle(url) {
 
 
 
-window.addEventListener("load", () => {
+window.addEventListener("load", function() {
     hideVideoInformation();
     injectPotluckElement();
     injectPotluckRecTitleElement();
