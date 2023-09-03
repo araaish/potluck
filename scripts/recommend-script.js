@@ -1,5 +1,7 @@
-// Create a recommend button on the video metadata menu
+// Inject the recommend button
+window.addEventListener("yt-page-data-updated", injectRecommendButton);
 
+// Create a recommend button on the video metadata menu
 function injectRecommendButton() {
     const parentElement = document.querySelector("#menu > ytd-menu-renderer");
 
@@ -15,7 +17,7 @@ function injectRecommendButton() {
     buttonElement = document.createElement("button");
 
     // Styl button
-    buttonElement.textContent = "Recommend"; // Button text
+    buttonElement.textContent = "Recommend";
     buttonElement.setAttribute("id", "recommend-button");
     buttonElement.setAttribute("type", "button");
     BUTTON_COLOR = "#c3482b";
@@ -64,7 +66,3 @@ function recommendVideo() {
         // TODO: display success message
     });
 }
-
-
-// Inject the recommend button
-window.addEventListener("yt-page-data-updated", injectRecommendButton);

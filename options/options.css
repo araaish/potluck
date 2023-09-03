@@ -1,0 +1,56 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Set a background color */
+body {
+    background-color: #ffb361;
+    font-family: Arial, sans-serif;
+    padding: 10px;
+    color: #333;
+}
+
+/* Center the page title */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Style sections */
+section {
+    margin-bottom: 20px;
+}
+
+/* Style labels for dropdowns and inputs */
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Style dropdown menus */
+select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #ffcc7a;
+    font-size: 14px;
+}
+
+/* Style github link */
+.github-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+/* Add spacing between sections */
+section + section {
+    margin-top: 20px;
+}

@@ -1,3 +1,46 @@
+let scriptRun = false;
+
+async function homepageScript() {
+    const options = await loadOptions();
+    potluckLimit = options.potluckLimit;
+    youtubeLimit = options.youtubeLimit;
+    hideVideoInformation();
+    injectPotluckElement();
+    injectPotluckRecTitleElement();
+    injectPotluckRecContents();
+    injectYoutubeRecTitleElement();
+    injectYoutubeRecContents();
+}
+
+window.addEventListener("load", function() {
+    if (!scriptRun) {
+        console.log("window loaded");
+        homepageScript();
+        scriptRun = true;
+    }
+});
+
+
+// variables for limit dropdowns
+const POTLUCK_DEFAULT_LIMIT = 5;
+const YOUTUBE_DEFAULT_LIMIT = 2; 
+var potluckLimit = POTLUCK_DEFAULT_LIMIT;
+var youtubeLimit = YOUTUBE_DEFAULT_LIMIT;
+
+// Load options from storage
+async function loadOptions() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(["potluckLimit", "youtubeLimit"], function (result) {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                const potluck = result.potluckLimit || POTLUCK_DEFAULT_LIMIT;
+                const youtube = result.youtubeLimit || YOUTUBE_DEFAULT_LIMIT;
+                resolve({ potluckLimit: potluck, youtubeLimit: youtube });
+            }
+        });
+    });
+}
 
 // Function to hide video information
 function hideVideoInformation() {
@@ -75,7 +118,6 @@ function injectPotluckRecContents() {
         grandparentElement.insertBefore(potluck_rec_contents, grandparentElement.children[1]);
     }
 
-
     // Get list of video urls from background script
     chrome.runtime.sendMessage({command: "getRecommendations"}, function(response) {
         if (response) {
@@ -90,7 +132,8 @@ function injectPotluckRecContents() {
                 .then(([thumbnails, titles]) => {
                     // Combine thumbnails, titles, and contacts
                     const video_metadata = [];
-                    for (let i = 0; i < recs.length; i++) {
+                    // collect minimum of limit and number of recommendations
+                    for (let i = 0; i < Math.min(potluckLimit, recs.length); i++) {
                         video_metadata.push({
                             thumbnail: thumbnails[i],
                             title: titles[i],
@@ -196,18 +239,17 @@ function injectYoutubeRecContents() {
         grandparentElement.insertBefore(youtube_rec_contents, grandparentElement.children[3]);
     }
 
-    // display ROW_LIMIT number of rows
-    // TODO: add dynamic LIMIT option to settings
-    const ROW_LIMIT = 3;
+    // Display stored option limit number of videos
     const parentElement = document.querySelector("#youtube-rec-contents");
     const row_elements = document.querySelectorAll("ytd-rich-grid-row")
-    for (let i = 0; i < ROW_LIMIT; i++) {
+    for (let i = 0; i < youtubeLimit; i++) {
         if (parentElement) {
             parentElement.insertBefore(row_elements[i], parentElement.children[i]);
         }
     }
 }
 
+// TODO: move this to a separate file
 YOUTUBE_API_KEY = "AIzaSyBiX5IWmifn4ANkQ1E6YQqptIG2IQsGm1M";
 
 // get thumbnail from youtube api
@@ -231,14 +273,3 @@ async function getTitle(url) {
         return data.items[0].snippet.title;
     });
 }
-
-
-
-window.addEventListener("load", function() {
-    hideVideoInformation();
-    injectPotluckElement();
-    injectPotluckRecTitleElement();
-    injectPotluckRecContents();
-    injectYoutubeRecTitleElement();
-    injectYoutubeRecContents();
-});
