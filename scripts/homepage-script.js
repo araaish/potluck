@@ -1,6 +1,14 @@
-let scriptRun = false;
-
+// Entry point for homepage script
 async function homepageScript() {
+    if (!["https://www.youtube.com/", "https://www.youtube.com/?bp=wgUCEAE%3D"].includes(document.location.href)) {
+        return;
+    }
+    const potluck_element = document.querySelector("#potluck-element");
+    if (potluck_element) {
+        console.log("potluck element already exists");
+        return;
+    }
+    console.log("potluck element does not exist");
     const options = await loadOptions();
     potluckLimit = options.potluckLimit;
     youtubeLimit = options.youtubeLimit;
@@ -12,14 +20,15 @@ async function homepageScript() {
     injectYoutubeRecContents();
 }
 
-window.addEventListener("load", function() {
-    if (!scriptRun) {
-        console.log("window loaded");
-        homepageScript();
-        scriptRun = true;
-    }
+// Run homepage script on page load
+window.addEventListener("load", () => {
+    homepageScript();
 });
 
+// Run homepage script on page navigation
+document.addEventListener("yt-navigate-finish", () => {
+    homepageScript();
+});
 
 // variables for limit dropdowns
 const POTLUCK_DEFAULT_LIMIT = 5;
@@ -27,7 +36,7 @@ const YOUTUBE_DEFAULT_LIMIT = 2;
 var potluckLimit = POTLUCK_DEFAULT_LIMIT;
 var youtubeLimit = YOUTUBE_DEFAULT_LIMIT;
 
-// Load options from storage
+// Load options variables from storage
 async function loadOptions() {
     return new Promise((resolve, reject) => {
         chrome.storage.sync.get(["potluckLimit", "youtubeLimit"], function (result) {
@@ -42,45 +51,34 @@ async function loadOptions() {
     });
 }
 
-// Function to hide video information
+// Hide all original video content on homepage
 function hideVideoInformation() {
     // hide categories toolbar at top of page (e.g. "All", "Music", "Sports", etc.)
     const category_toolbar = document.querySelector('#header.ytd-rich-grid-renderer');
     category_toolbar.style.display = 'none';
     category_toolbar.style.pointerEvents = 'none';
-
     // hide all video information
     const contents = document.querySelector('#contents.ytd-rich-grid-renderer');
     contents.style.display = 'none';
     contents.style.pointerEvents = 'none';
-
 }
 
-// Function to inject a container for Potluck UI
+// Inject a container for Potluck UI
 function injectPotluckElement() {
-  //const pageTitle = "Youtube Recommends"; // Replace this with your desired title text
-
   // Create a new div element
   const potluck_element = document.createElement("div");
-
   // Add an id to the new div element
   potluck_element.setAttribute("id", "potluck-element");
-
   // Style the div element
   potluck_element.style.width = "100%";
   potluck_element.style.paddingTop = "24px";
   potluck_element.style.display = "flex";
   potluck_element.style.flexWrap = "wrap";
   potluck_element.style.justifyContent = "flex-start";
-
-
-
   // Find the parent element where you want to inject the title (e.g., the header or any suitable container)
-  const parentElement = document.querySelector("ytd-rich-grid-renderer"); // Replace "#header" with the appropriate selector
-
+  const parentElement = document.querySelector("ytd-rich-grid-renderer");
   const nthChildIndex = 4; // the desired nth child index (0-based)
   const nthChildElement = parentElement.children[nthChildIndex];
-
   // Check if the parent element exists before injecting the potluck element
   if (parentElement) {
     // Add the potluck element as the nth child of the parent element
@@ -88,7 +86,7 @@ function injectPotluckElement() {
   }
 }
 
-// Function to inject potluck recommendation title
+// Inject potluck recommendation title
 function injectPotluckRecTitleElement() {
     const potluck_title_element = document.createElement("h1");
     potluck_title_element.setAttribute("id", "potluck-title-element");
@@ -99,40 +97,31 @@ function injectPotluckRecTitleElement() {
     }
 }
 
-// Function to inject potluck recommendation videos
+// Inject potluck recommendation videos
 function injectPotluckRecContents() {
-
     // Create a new div element
     const potluck_rec_contents = document.createElement("div");
     potluck_rec_contents.setAttribute("id", "potluck-rec-contents");
-
     // Style the div element
     potluck_rec_contents.style.width = "100%";
     potluck_rec_contents.style.paddingTop = "24px";
     potluck_rec_contents.style.display = "flex";
     potluck_rec_contents.style.flexWrap = "wrap";
     potluck_rec_contents.style.justifyContent = "flex-start";
-
     const grandparentElement = document.querySelector("#potluck-element");
     if (grandparentElement) {
         grandparentElement.insertBefore(potluck_rec_contents, grandparentElement.children[1]);
     }
-
-    // Get list of video urls from background script
+    // Get list of video metadata from background script
     chrome.runtime.sendMessage({command: "getRecommendations"}, function(response) {
         if (response) {
-            console.log("Response received: ", response);
-            const recs = response;
-
-            // Extract video metadata from urls
-            const thumbnailPromises = recs.map(rec => getThumbnail(rec.url));
-            const titlePromises = recs.map(rec => getTitle(rec.url));
-
+            var thumbnailPromises = response.data.thumbnails;
+            var titlePromises = response.data.titles;
+            var recs = response.data.recs;
             Promise.all([Promise.all(thumbnailPromises), Promise.all(titlePromises)])
                 .then(([thumbnails, titles]) => {
-                    // Combine thumbnails, titles, and contacts
                     const video_metadata = [];
-                    // collect minimum of limit and number of recommendations
+                    // collect at most potluckLimit number of videos
                     for (let i = 0; i < Math.min(potluckLimit, recs.length); i++) {
                         video_metadata.push({
                             thumbnail: thumbnails[i],
@@ -141,7 +130,6 @@ function injectPotluckRecContents() {
                             url: recs[i].url
                         });
                     }
-                    
                     // Display video metadata
                     video_metadata.forEach(function(metadata) {
                         // create thumbnail element
@@ -152,9 +140,8 @@ function injectPotluckRecContents() {
                         thumbnail_element.setAttribute("height", "120");
                         thumbnail_element.style.borderRadius = "8px";
                         thumbnail_element.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)";
-                        // clip top and bottom borders
-                        thumbnail_element.style.objectFit = "cover";
-                        
+                        thumbnail_element.style.objectFit = "cover"; // crop top and bottom borders
+
                         // create title element
                         const title_element = document.createElement("h3");
                         title_element.textContent = metadata.title;
@@ -196,6 +183,7 @@ function injectPotluckRecContents() {
                             container_element.style.cursor = "default";
                             thumbnail_element.style.boxShadow = "0px 2px 4px rgba(0, 0, 0, 0.1)";
                         });
+
                         // navigate to video on click
                         container_element.addEventListener("click", () => {
                             window.open(metadata.url, "_blank");
@@ -206,12 +194,12 @@ function injectPotluckRecContents() {
                     });
                 });
         } else {
-            console.log("No response from background script");
+            console.error("No response from background script");
         }
     });
 }
 
-// Function to inject youtube recommendation title
+// Inject youtube recommendation title
 function injectYoutubeRecTitleElement() {
     const youtube_title_element = document.createElement("h1");
     youtube_title_element.setAttribute("id", "youtube-title-element");
@@ -239,7 +227,7 @@ function injectYoutubeRecContents() {
         grandparentElement.insertBefore(youtube_rec_contents, grandparentElement.children[3]);
     }
 
-    // Display stored option limit number of videos
+    // Display youtubeLimit number of videos
     const parentElement = document.querySelector("#youtube-rec-contents");
     const row_elements = document.querySelectorAll("ytd-rich-grid-row")
     for (let i = 0; i < youtubeLimit; i++) {
@@ -247,29 +235,4 @@ function injectYoutubeRecContents() {
             parentElement.insertBefore(row_elements[i], parentElement.children[i]);
         }
     }
-}
-
-// TODO: move this to a separate file
-YOUTUBE_API_KEY = "AIzaSyBiX5IWmifn4ANkQ1E6YQqptIG2IQsGm1M";
-
-// get thumbnail from youtube api
-async function getThumbnail(url) {
-    const video_id = url.split("v=")[1];
-    const thumbnail_url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + video_id + "&key=" + YOUTUBE_API_KEY;
-    return fetch(thumbnail_url).then((response) => {
-        return response.json();
-    }).then((data) => {
-        return data.items[0].snippet.thumbnails.default.url;
-    });
-}
-
-// get title from youtube api
-async function getTitle(url) {
-    const video_id = url.split("v=")[1];
-    const title_url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + video_id + "&key=" + YOUTUBE_API_KEY;
-    return fetch(title_url).then((response) => {
-        return response.json();
-    }).then((data) => {
-        return data.items[0].snippet.title;
-    });
 }

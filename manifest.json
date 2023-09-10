@@ -9,10 +9,9 @@
     "permissions" : [
         "identity",
         "identity.email",
-        "scripting",
         "tabs",
         "storage"
-    ],
+        ],
     "action": {
       "default_popup": "options/options.html",
       "default_title": "Potluck"
@@ -29,20 +28,22 @@
           "scripts/homepage-script.js"
         ],
         "matches": [
-            "https://www.youtube.com/"
-        ]
+            "https://www.youtube.com/*"
+        ],
+        "run_at": "document_end"
       },
       {
         "js": [
           "scripts/recommend-script.js"
         ],
         "matches": [
-            "https://www.youtube.com/watch?v=*"
-        ]
+            "https://www.youtube.com/*"
+        ],
+        "run_at": "document_end"
       }
     ],
     "background": {
-      "service_worker": "scripts/firebase.js"
+      "service_worker": "scripts/background.js"
     },
     "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmM+efebxqd4/qlThhZ9QJbj1eeORpb6J2Jk/dO7HSuH+qa+qdFqLnY9oZacyDhEXlDaqRhfkNres/+mZggJ6CLT7n9jSKdSZO+S8qGi0jcQyc+PpE2n6Fk48U46i5zZrOz0jwiasFX4+bCYSv0deOsmKzaP+pMddmok+c5bp9A7VgzesalOfahm4dWMv+RFhaI7IB21mPHQPdNlvtt/v4C4INEPyUQywD0I5omsmEoqBvfjmUse8Ge95NVNk8ZXoCgz4QQWFtT+SwbX+amlZanzEjV4Tf7rwrray0mJwyVNj2bePb6FOpR0QLgJNEfQyWe9KDCVSE9px1DsWB6tEZQIDAQAB",
     "oauth2": {

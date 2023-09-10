@@ -1,22 +1,28 @@
-// Inject the recommend button
-window.addEventListener("yt-page-data-updated", injectRecommendButton);
+// Inject the recommend button upon page navigation
+window.addEventListener("load", () => {
+    injectRecommendButton();
+    });
+
+// Inject the recommend button upon page navigation
+document.addEventListener("yt-page-data-updated", () => {
+    injectRecommendButton();
+});
 
 // Create a recommend button on the video metadata menu
 function injectRecommendButton() {
+    if (document.location.href.match(/https:\/\/www\.youtube\.com\/watch\?v=.*/g) === null) {
+        return;
+    }
     const parentElement = document.querySelector("#menu > ytd-menu-renderer");
-
     // if the recommend button already exists, don't inject it again
     if (parentElement.querySelector("#recommend-button")) {
         return;
     }
 
     const recommendButton = parentElement.querySelector("#top-level-buttons-computed > ytd-button-renderer").cloneNode(true);
-
     // Style the reccomend button
     textElement = recommendButton.querySelector("#top-level-buttons-computed > ytd-button-renderer > yt-button-shape > button > div.cbox.yt-spec-button-shape-next__button-text-content > span");
     buttonElement = document.createElement("button");
-
-    // Styl button
     buttonElement.textContent = "Recommend";
     buttonElement.setAttribute("id", "recommend-button");
     buttonElement.setAttribute("type", "button");
@@ -62,7 +68,11 @@ function recommendVideo() {
     // Send message to background script
     chrome.runtime.sendMessage({command: "recommend", data: {url : url}}, 
     (response) => {
-        console.log("MADE RECOMMENDATION: ", response);
-        // TODO: display success message
+        if (response.status === "success") {
+            alert("Recommendation sent!");
+        }
+        else {
+            alert("Recommendation failed to send.");
+        }
     });
 }

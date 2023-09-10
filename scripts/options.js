@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const potluckLimit = potluckLimitSelect.value;
         chrome.storage.sync.set({ potluckLimit });
     });
-
     youtubeLimitSelect.addEventListener("change", function () {
         const youtubeLimit = youtubeLimitSelect.value;
         chrome.storage.sync.set({ youtubeLimit });
