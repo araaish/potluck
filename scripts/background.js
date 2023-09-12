@@ -1,4 +1,3 @@
-// TODO: remove and regenerate all sensitive data: api keys
 self.importScripts('../firebase/firebase-app.js', '../firebase/firebase-database.js', '../firebase/firebase-auth.js');
 self.importScripts('../constants.js');
 

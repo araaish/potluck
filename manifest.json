@@ -9,7 +9,6 @@
     "permissions" : [
         "identity",
         "identity.email",
-        "tabs",
         "storage"
         ],
     "action": {
