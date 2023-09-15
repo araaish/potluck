@@ -12,6 +12,7 @@ async function homepageScript() {
     const options = await loadOptions();
     potluckLimit = options.potluckLimit;
     youtubeLimit = options.youtubeLimit;
+    textColor = options.textColor;
     hideVideoInformation();
     injectPotluckElement();
     injectPotluckRecTitleElement();
@@ -30,22 +31,25 @@ document.addEventListener("yt-navigate-finish", () => {
     homepageScript();
 });
 
-// variables for limit dropdowns
+// variables for potluck options
 const POTLUCK_DEFAULT_LIMIT = 5;
 const YOUTUBE_DEFAULT_LIMIT = 2; 
+const DEFAULT_TEXT_COLOR = "black";
 var potluckLimit = POTLUCK_DEFAULT_LIMIT;
 var youtubeLimit = YOUTUBE_DEFAULT_LIMIT;
+var textColor = DEFAULT_TEXT_COLOR;
 
 // Load options variables from storage
 async function loadOptions() {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(["potluckLimit", "youtubeLimit"], function (result) {
+        chrome.storage.sync.get(["potluckLimit", "youtubeLimit", "isDarkMode"], function (result) {
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
             } else {
                 const potluck = result.potluckLimit || POTLUCK_DEFAULT_LIMIT;
                 const youtube = result.youtubeLimit || YOUTUBE_DEFAULT_LIMIT;
-                resolve({ potluckLimit: potluck, youtubeLimit: youtube });
+                const color = result.isDarkMode ? "white" : DEFAULT_TEXT_COLOR;
+                resolve({ potluckLimit: potluck, youtubeLimit: youtube, textColor: color });
             }
         });
     });
@@ -90,6 +94,7 @@ function injectPotluckElement() {
 function injectPotluckRecTitleElement() {
     const potluck_title_element = document.createElement("h1");
     potluck_title_element.setAttribute("id", "potluck-title-element");
+    potluck_title_element.style.color = textColor;
     potluck_title_element.textContent = "Your Potluck Recommends";
     const parentElement = document.querySelector("#potluck-element");
     if (parentElement) {
@@ -147,6 +152,7 @@ function injectPotluckRecContents() {
                         title_element.textContent = metadata.title;
                         title_element.style.fontSize = "14px";
                         title_element.style.fontFamily = "Roboto, sans-serif";
+                        title_element.style.color = textColor;
                         // shorten title if necessary
                         if (title_element.textContent.length > 30) {
                             title_element.textContent = title_element.textContent.substring(0, 30) + "...";
@@ -157,6 +163,7 @@ function injectPotluckRecContents() {
                         contact_element.textContent = "Recommended by: " + metadata.contact;
                         contact_element.style.fontSize = "12px";
                         contact_element.style.fontFamily = "Roboto, sans-serif";
+                        contact_element.style.color = textColor;
 
                         // create container element
                         const container_element = document.createElement("div");
@@ -203,6 +210,7 @@ function injectPotluckRecContents() {
 function injectYoutubeRecTitleElement() {
     const youtube_title_element = document.createElement("h1");
     youtube_title_element.setAttribute("id", "youtube-title-element");
+    youtube_title_element.style.color = textColor;
     youtube_title_element.textContent = "Youtube Recommends";
     const parentElement = document.querySelector("#potluck-element");
     if (parentElement) {
