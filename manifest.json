@@ -48,8 +48,9 @@
     "oauth2": {
         "client_id": "644458548318-8ockpnvvcq0s8rdbiinuisa6i0huvg5l.apps.googleusercontent.com",
         "scopes" : [
-            "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/contacts"
+          "https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/contacts.readonly",
+          "https://www.googleapis.com/auth/youtube.readonly"
         ]
     }
 }
