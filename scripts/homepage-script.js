@@ -5,10 +5,8 @@ async function homepageScript() {
     }
     const potluck_element = document.querySelector("#potluck-element");
     if (potluck_element) {
-        console.log("potluck element already exists");
         return;
     }
-    console.log("potluck element does not exist");
     const options = await loadOptions();
     potluckLimit = options.potluckLimit;
     youtubeLimit = options.youtubeLimit;

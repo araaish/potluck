@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Save respective color scheme when the toggle changes
     themeToggle.addEventListener('change', () => {
         const isDarkMode = themeToggle.checked;
-        console.log("isDarkMode: ", isDarkMode);
         chrome.storage.sync.set({ isDarkMode });   
     });
 });

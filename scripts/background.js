@@ -19,6 +19,9 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
             // sanitize email
             const restrictedCharactersRegex = /[.$\[\]#\/]/g;
             email = email.replace(restrictedCharactersRegex, "");
+            if (email === "") {
+              throw new Error("empty email");
+            }
             const ref = db.ref("recommendations/" +  email);
             try {
               ref.set({
@@ -34,37 +37,35 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 
     // get recommendations message
     if (msg.command === "getRecommendations") {
-        getUserEmail().then((email) => {
-            getUserContacts().then((contacts) => {
-                var promises = [];
-                contacts.forEach((contact) => {
-                    // sanitize contact email
-                    contact = contact.replace(/[.$\[\]#\/]/g, "");
-                    const ref = db.ref("recommendations/" + contact);
-                    promises.push(
-                        new Promise((resolve) => {
-                            ref.on("value", (snapshot) => {
-                                const data = snapshot.val();
-                                if (data) {
-                                    resolve({contact: contact, url: data.url});
-                                } else {
-                                    resolve(null);
-                                }
-                            });
-                        })
-                    );
-                });
-                Promise.all(promises).then((recs) => {
-                    recs = recs.filter(rec => rec !== null);
-                    const thumbnailPromises = recs.map(rec => getThumbnail(rec.url));
-                    const titlePromises = recs.map(rec => getTitle(rec.url));
-                    Promise.all(thumbnailPromises).then((thumbnails) => {
-                        Promise.all(titlePromises).then((titles) => {
-                            response({type: "result", status: "success", data: {thumbnails: thumbnails, titles: titles, recs: recs}});
-                        });
-                    });
-                });
-            });
+        getUserContacts().then((contacts) => {
+          var promises = [];
+          contacts.forEach((contact) => {
+              // sanitize contact email
+              contact = contact.replace(/[.$\[\]#\/]/g, "");
+              const ref = db.ref("recommendations/" + contact);
+              promises.push(
+                  new Promise((resolve) => {
+                      ref.on("value", (snapshot) => {
+                          const data = snapshot.val();
+                          if (data) {
+                              resolve({contact: contact, url: data.url});
+                          } else {
+                              resolve(null);
+                          }
+                      });
+                  })
+              );
+          });
+          Promise.all(promises).then((recs) => {
+              recs = recs.filter(rec => rec !== null);
+              const thumbnailPromises = recs.map(rec => getThumbnail(rec.url));
+              const titlePromises = recs.map(rec => getTitle(rec.url));
+              Promise.all(thumbnailPromises).then((thumbnails) => {
+                  Promise.all(titlePromises).then((titles) => {
+                      response({type: "result", status: "success", data: {thumbnails: thumbnails, titles: titles, recs: recs}});
+                  });
+              });
+          });
         });
     }
     return true;
@@ -128,6 +129,7 @@ function getUserContacts() {
                 '?personFields=emailAddresses&key=' + PEOPLE_API_KEY,
               init);
             let contactData = await contactResponse.json();
+            if (contactData.emailAddresses === undefined) continue; // ignore contacts with no email address
             let contact = contactData.emailAddresses[0].value;
             contacts.push(contact);
           }

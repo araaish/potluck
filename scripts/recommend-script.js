@@ -1,10 +1,19 @@
 // Inject the recommend button upon page navigation
+// Brute force method of spamming the DOM with event listeners
+// Need to find a better way to do this
 window.addEventListener("load", () => {
     injectRecommendButton();
-    });
+});
 
-// Inject the recommend button upon page navigation
-document.addEventListener("yt-page-data-updated", () => {
+window.addEventListener("yt-navigate-finish", () => {
+    injectRecommendButton();
+});
+
+window.addEventListener("yt-navigate-start", () => {
+    injectRecommendButton();
+});
+
+window.addEventListener("yt-page-data-updated", () => {
     injectRecommendButton();
 });
 
@@ -14,12 +23,20 @@ function injectRecommendButton() {
         return;
     }
     const parentElement = document.querySelector("#menu > ytd-menu-renderer");
+    if (parentElement === null) {
+        return;
+    }
     // if the recommend button already exists, don't inject it again
-    if (parentElement.querySelector("#recommend-button")) {
+    recommend_element = parentElement.querySelector("#recommend-button");
+    if (recommend_element) {
         return;
     }
 
-    const recommendButton = parentElement.querySelector("#top-level-buttons-computed > ytd-button-renderer").cloneNode(true);
+    const cloneElement = parentElement.querySelector("#top-level-buttons-computed > ytd-button-renderer");
+    if (cloneElement === null) {
+        return;
+    }
+    const recommendButton = cloneElement.cloneNode(true);
     // Style the reccomend button
     textElement = recommendButton.querySelector("#top-level-buttons-computed > ytd-button-renderer > yt-button-shape > button > div.cbox.yt-spec-button-shape-next__button-text-content > span");
     buttonElement = document.createElement("button");
@@ -72,6 +89,9 @@ function recommendVideo() {
             alert("Recommendation sent!");
         }
         else {
+            if (response.data === "empty email") {
+                alert("Recommendation failed. Please turn on Chrome sync to use this feature.");
+            }
             alert("Recommendation failed to send.");
         }
     });
