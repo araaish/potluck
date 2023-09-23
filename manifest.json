@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Potluck",
     "description": "A simplified Youtube homepage based on peer recommendations",
-    "version": "1.0",
+    "version": "1.1",
     "host_permissions": [
         "https://www.youtube.com/*"
     ],
