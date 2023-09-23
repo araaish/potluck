@@ -19,12 +19,10 @@ a maximum of 5 rows.
 
 ### Options
 The potluck extension icon in the extensions toolbar provides user options to customize your feed. You can choose the number of potluck recommendation videos you want to see
-homepage from the options [5,10,15,20]. You can also select the number of rows of YOutube recommendations you want to see from the options [1,2,3,5]. To stay compatible with 
-Youtube's dark mode, there is a dark mode toggle that changes the text between black and white.
+on the homepage from the options [5,10,15,20]. You can also select the number of rows of Youtube recommendations you want to see from the options [1,2,3,5]. To stay compatible with Youtube's dark mode, there is a dark mode toggle that changes the text between black and white.
 
 ### Motivation
-The Youtube algorithm is a great mechanism for exploration. But it is designed to maximize watchtime using signals that operate directly with your subconscious behavior. potluck
-is an effort to minimize watchtime - in a way that is transparant to you. The only signal is the people whose opinion you value.
+The Youtube algorithm is a great mechanism for exploration. But it is designed to maximize watchtime using signals that operate directly with your subconscious behavior. potluck is an effort to minimize watchtime - in a way that is transparant to you. The only signal is the people whose opinion you value.
 
 ### Current Issues
 1. The recommednation button doesn't load upon navigating to a video from the homepage. Refreshing the page usually works.
