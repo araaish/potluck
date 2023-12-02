@@ -16,7 +16,6 @@ async function homepageScript() {
     injectPotluckRecTitleElement();
     injectPotluckRecContents();
     injectYoutubeRecTitleElement();
-    injectYoutubeRecContents();
 }
 
 // Run homepage script on page load
@@ -61,8 +60,20 @@ function hideVideoInformation() {
     category_toolbar.style.pointerEvents = 'none';
     // hide all video information
     const contents = document.querySelector('#contents.ytd-rich-grid-renderer');
-    contents.style.display = 'none';
-    contents.style.pointerEvents = 'none';
+    let j = 0;
+    for (let i = 0; i < contents.children.length; i++) {
+        if (contents.children[i].tagName == 'YTD-RICH-SECTION-RENDERER') {  // hiding youtube shorts section
+            contents.children[i].style.display = 'none';
+            contents.children[i].style.pointerEvents = 'none';
+        }
+        else {
+            j++;
+        }
+        if (j > youtubeLimit) {
+            contents.children[i].style.display = 'none';
+            contents.children[i].style.pointerEvents = 'none';
+        }
+    }
 }
 
 // Inject a container for Potluck UI
@@ -213,32 +224,5 @@ function injectYoutubeRecTitleElement() {
     const parentElement = document.querySelector("#potluck-element");
     if (parentElement) {
         parentElement.insertBefore(youtube_title_element, parentElement.children[2]);
-    }
-}
-
-// Function to inject youtube recommendation videos
-function injectYoutubeRecContents() {
-    const youtube_rec_contents = document.createElement("div");
-    youtube_rec_contents.setAttribute("id", "youtube-rec-contents");
-
-    // Style the div element
-    youtube_rec_contents.style.width = "100%";
-    youtube_rec_contents.style.paddingTop = "24px";
-    youtube_rec_contents.style.display = "flex";
-    youtube_rec_contents.style.flexWrap = "wrap";
-    youtube_rec_contents.style.justifyContent = "flex-start";
-
-    const grandparentElement = document.querySelector("#potluck-element");
-    if (grandparentElement) {
-        grandparentElement.insertBefore(youtube_rec_contents, grandparentElement.children[3]);
-    }
-
-    // Display youtubeLimit number of videos
-    const parentElement = document.querySelector("#youtube-rec-contents");
-    const row_elements = document.querySelectorAll("ytd-rich-grid-row")
-    for (let i = 0; i < youtubeLimit; i++) {
-        if (parentElement) {
-            parentElement.insertBefore(row_elements[i], parentElement.children[i]);
-        }
     }
 }
