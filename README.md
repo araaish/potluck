@@ -2,7 +2,6 @@
 Chrome extension to simplify your Youtube feed and curate video recommendations from friends  
 [Chrome Web Store listing](https://chrome.google.com/webstore/detail/potluck/mpgljjemfdiemijijojnbpmcipkmhbhc)
 
-**The extension is currently in testing mode and not available to the general public.**
 
 ### Functionality
 potluck is based on curated, peer-to-peer recommendations. potluck users authenticate through Google. Each user is limited to one current recommendation. Each user account
@@ -27,5 +26,3 @@ The Youtube algorithm is a great mechanism for exploration. But it is designed t
 ### Current Issues
 1. The recommednation button doesn't load upon navigating to a video from the homepage. Refreshing the page usually works.
 2. The Youtube video metadata (thumbnail, title) is pulled using the Youtube API, and the contact information through Google People API, both of which are rate limited.
-3. The Oauth provider (Google) is not verified so the app is still limited to test users. To be fixed soon
-
